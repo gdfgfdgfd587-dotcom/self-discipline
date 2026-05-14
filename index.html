@@ -1,302 +1,753 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自律打卡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>自律计时</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f7; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; text-align: center; color: white; font-size: 20px; font-weight: bold; }
-        .countdown { background: white; padding: 15px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        .countdown .time { font-size: 24px; font-weight: bold; color: #667eea; }
-        .nav { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 15px; background: white; }
-        .nav button { background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; }
-        .nav span { font-size: 16px; font-weight: 600; color: #333; }
-        .stats { display: flex; justify-content: center; gap: 30px; padding: 15px; background: white; margin: 15px; border-radius: 15px; }
-        .stat { text-align: center; }
-        .stat .num { font-size: 24px; font-weight: bold; color: #667eea; }
-        .stat .label { font-size: 11px; color: #999; }
-        .add-box { display: flex; gap: 10px; padding: 0 15px 15px; }
-        .add-box input { flex: 1; padding: 12px 15px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 15px; outline: none; }
-        .add-box input:focus { border-color: #667eea; }
-        .add-box button { background: #667eea; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
-        .tasks { padding: 0 15px; }
-        .task { background: white; margin-bottom: 12px; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .task-row { display: flex; align-items: center; padding: 15px; gap: 12px; cursor: pointer; }
-        .task-row:hover { background: #fafafa; }
-        .task-icon { width: 40px; height: 40px; background: #f0f2f5; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .task-info { flex: 1; }
-        .task-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
-        .task-meta { font-size: 12px; color: #999; }
-        .task-btns { display: flex; gap: 8px; }
-        .task-btns button { border: none; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .btn-start { background: #34c759; color: white; }
-        .btn-pause { background: #ff9500; color: white; }
-        .btn-end { background: #667eea; color: white; }
-        .btn-del { background: #ff3b30; color: white; padding: 6px 10px; }
-        .sub-list { padding: 0 15px 15px; border-top: 1px solid #f5f5f5; }
-        .sub-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-        .sub-item input { width: 18px; height: 18px; }
-        .sub-item span { flex: 1; font-size: 14px; }
-        .sub-item.done span { text-decoration: line-through; color: #ccc; }
-        .sub-add { display: flex; gap: 8px; margin-top: 10px; }
-        .sub-add input { flex: 1; padding: 8px 10px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; }
-        .sub-add button { background: #f0f2f5; color: #667eea; border: none; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
-        .week { padding: 20px 15px; }
-        .week h3 { font-size: 13px; color: #999; margin-bottom: 10px; }
-        .week-row { display: flex; gap: 8px; }
-        .day { flex: 1; text-align: center; padding: 12px; background: white; border-radius: 12px; }
-        .day.today { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .day .d { font-size: 11px; color: #999; }
-        .day.today .d { color: rgba(255,255,255,0.7); }
-        .day .n { font-size: 18px; font-weight: bold; margin-top: 4px; }
-        .day .n.zero { color: #ccc; }
-        .day.today .n { color: white; }
+        :root {
+            --bg1: #0f0f1a;
+            --bg2: #1a1a2e;
+            --accent: #6c5ce7;
+            --accent2: #a29bfe;
+            --text: #fff;
+            --text-dim: rgba(255,255,255,0.5);
+            --card: rgba(255,255,255,0.06);
+            --card-border: rgba(255,255,255,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif; 
+            background: var(--bg1); 
+            color: var(--text); 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        /* 顶部标题栏 */
+        .title-bar {
+            padding: 12px 20px;
+            text-align: center;
+            background: var(--bg1);
+            border-bottom: 1px solid var(--card-border);
+            flex-shrink: 0;
+        }
+        .title-bar h1 {
+            font-size: 17px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* 内容区 */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 12px;
+            padding-bottom: 70px;
+        }
+        .content::-webkit-scrollbar { display: none; }
+        
+        /* 页面 */
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        /* ===== 计时页 ===== */
+        .task-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .task-btn {
+            padding: 10px 14px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .task-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+        .task-btn.selected { background: var(--accent); border-color: var(--accent); }
+        .task-add {
+            padding: 10px 14px;
+            background: transparent;
+            border: 1.5px dashed var(--card-border);
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+        
+        /* 计时显示 */
+        .timer-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .timer-icon {
+            font-size: 70px;
+            margin-bottom: 5px;
+        }
+        .timer-icon.anim { animation: pulse 0.6s infinite alternate; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+        @keyframes car { 0%,100%{transform:translateX(0)} 50%{transform:translateX(8px)} }
+        @keyframes book { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        @keyframes run { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes work { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+        @keyframes pencil { 0%,100%{transform:rotate(0)} 50%{transform:rotate(12deg)} }
+        
+        .timer-time {
+            font-size: 58px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+        }
+        .timer-label {
+            font-size: 15px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+        .timer-status {
+            font-size: 11px;
+            color: var(--accent2);
+            margin-top: 3px;
+            height: 14px;
+        }
+        
+        /* 控制按钮 */
+        .ctrl-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 10px 0 15px;
+        }
+        .ctrl-btn {
+            padding: 13px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-start { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; }
+        .btn-end { background: linear-gradient(135deg, #00b894, #00cec9); color: #fff; display: none; }
+        .btn-end.show { display: block; }
+        
+        /* 统计卡片 */
+        .stat-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .stat-card {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+        }
+        .stat-val { font-size: 22px; font-weight: 700; color: var(--accent2); }
+        .stat-lbl { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+        
+        /* 今日记录 */
+        .section-title {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            padding-left: 2px;
+        }
+        .record-item {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .record-name { font-size: 14px; }
+        .record-info { font-size: 13px; color: var(--accent2); }
+        
+        /* ===== 统计页 ===== */
+        .stat-tab {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .stat-tab button {
+            flex: 1;
+            padding: 11px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+        .stat-tab button.on {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .month-nav button {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .month-nav span { font-size: 14px; font-weight: 600; }
+        
+        /* 日历 */
+        .cal-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+        .weekday { text-align: center; font-size: 10px; color: var(--text-dim); padding: 4px 0; }
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .day {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.04);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .day:active { background: rgba(255,255,255,0.12); }
+        .day.other { color: rgba(255,255,255,0.15); background: transparent; }
+        .day.today { border: 1.5px solid var(--accent); }
+        .day-dot { width: 4px; height: 4px; background: var(--accent2); border-radius: 50%; margin-top: 2px; }
+        
+        /* 日详情 */
+        .day-detail {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .detail-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+        .detail-stats {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .detail-stat {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .detail-val { font-size: 20px; font-weight: 700; color: var(--accent2); }
+        .detail-lbl { font-size: 9px; color: var(--text-dim); }
+        .task-bar { margin-bottom: 8px; }
+        .task-info { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+        .task-name { color: #fff; }
+        .task-mins { color: var(--accent2); }
+        .task-bg { background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; }
+        .task-fill { height: 100%; border-radius: 4px; }
+        
+        /* 月度统计 */
+        .month-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .month-stats {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .month-stat {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            padding: 12px 6px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .month-val { font-size: 20px; font-weight: 700; color: var(--accent2); }
+        .month-lbl { font-size: 9px; color: var(--text-dim); }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15,15,26,0.95);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            padding: 6px 0 env(safe-area-inset-bottom, 6px);
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+        .nav-btn {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            background: none;
+            font-size: 10px;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .nav-btn.active { color: var(--accent2); }
+        .nav-icon { font-size: 22px; }
+        
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show { display: flex; }
+        .modal-box {
+            background: var(--bg2);
+            border-radius: 16px;
+            padding: 20px;
+            width: 88%;
+            max-width: 300px;
+            border: 1px solid var(--card-border);
+        }
+        .modal-title { font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 15px; }
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .modal-input::placeholder { color: var(--text-dim); }
+        .modal-btns { display: flex; gap: 8px; margin-top: 12px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .modal-cancel { background: var(--card); color: #fff; }
+        .modal-ok { background: var(--accent); color: #fff; }
     </style>
 </head>
 <body>
-    <div class="header">自律打卡</div>
-    <div class="countdown"><div class="time" id="timer">--:--:--</div></div>
-    <div class="nav">
-        <button onclick="changeDate(-1)">前一天</button>
-        <span id="curDate"></span>
-        <button onclick="changeDate(1)">后一天</button>
+    <div class="title-bar"><h1>自律计时</h1></div>
+    
+    <div class="content">
+        <!-- 计时页 -->
+        <div class="screen active" id="screenTimer">
+            <div class="task-row" id="taskRow">
+                <button class="task-btn" onclick="selTask('练车', this)">🚗 练车</button>
+                <button class="task-btn" onclick="selTask('背单词', this)">📖 背单词</button>
+                <button class="task-btn" onclick="selTask('刷题', this)">✏️ 刷题</button>
+                <button class="task-btn" onclick="selTask('阅读', this)">📚 阅读</button>
+                <button class="task-btn" onclick="selTask('运动', this)">🏃 运动</button>
+                <button class="task-btn" onclick="selTask('工作', this)">💼 工作</button>
+                <button class="task-add" onclick="showAdd()">➕ 自定义</button>
+            </div>
+            
+            <div class="timer-box">
+                <div class="timer-icon" id="timerIcon">⏱</div>
+                <div class="timer-time" id="timerTime">00:00</div>
+                <div class="timer-label" id="timerLabel">选择任务开始</div>
+                <div class="timer-status" id="timerStatus"></div>
+            </div>
+            
+            <div class="ctrl-row">
+                <button class="ctrl-btn btn-start" id="btnStart" onclick="startTimer()">开始计时</button>
+                <button class="ctrl-btn btn-end" id="btnEnd" onclick="endTimer()">结束</button>
+            </div>
+            
+            <div class="stat-row">
+                <div class="stat-card"><div class="stat-val" id="valToday">0</div><div class="stat-lbl">今日完成</div></div>
+                <div class="stat-card"><div class="stat-val" id="valTotal">0m</div><div class="stat-lbl">累计时长</div></div>
+                <div class="stat-card"><div class="stat-val" id="valStreak">0</div><div class="stat-lbl">连续天数</div></div>
+            </div>
+            
+            <div class="section-title">今日记录</div>
+            <div id="todayRecords"></div>
+        </div>
+        
+        <!-- 统计页 -->
+        <div class="screen" id="screenStats">
+            <div class="stat-tab">
+                <button class="on" id="tabDay" onclick="showStatView('day')">📅 日统计</button>
+                <button id="tabMonth" onclick="showStatView('month')">📆 月度</button>
+            </div>
+            
+            <div id="viewDay">
+                <div class="month-nav">
+                    <button onclick="chgMon(-1)">◀</button>
+                    <span id="txtMon"></span>
+                    <button onclick="chgMon(1)">▶</button>
+                </div>
+                <div class="cal-card">
+                    <div class="weekdays">
+                        <div class="weekday">日</div><div class="weekday">一</div><div class="weekday">二</div>
+                        <div class="weekday">三</div><div class="weekday">四</div><div class="weekday">五</div><div class="weekday">六</div>
+                    </div>
+                    <div class="days" id="daysGrid"></div>
+                </div>
+                <div class="day-detail" id="dayDetail">
+                    <div class="detail-title" id="detailTitle"></div>
+                    <div class="detail-stats">
+                        <div class="detail-stat"><div class="detail-val" id="detailCnt">0</div><div class="detail-lbl">完成</div></div>
+                        <div class="detail-stat"><div class="detail-val" id="detailMins">0</div><div class="detail-lbl">分钟</div></div>
+                    </div>
+                    <div id="detailBars"></div>
+                </div>
+            </div>
+            
+            <div id="viewMonth" style="display:none;">
+                <div class="month-nav">
+                    <button onclick="chgMon(-1)">◀</button>
+                    <span id="txtMon2"></span>
+                    <button onclick="chgMon(1)">▶</button>
+                </div>
+                <div class="month-card">
+                    <div class="month-stats">
+                        <div class="month-stat"><div class="month-val" id="mCnt">0</div><div class="month-lbl">完成数</div></div>
+                        <div class="month-stat"><div class="month-val" id="mMins">0</div><div class="month-lbl">分钟</div></div>
+                        <div class="month-stat"><div class="month-val" id="mDays">0</div><div class="month-lbl">活跃天</div></div>
+                    </div>
+                    <div id="monthBars"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="stats">
-        <div class="stat"><div class="num" id="done">0</div><div class="label">已完成</div></div>
-        <div class="stat"><div class="num" id="running">0</div><div class="label">进行中</div></div>
-        <div class="stat"><div class="num" id="rate">0%</div><div class="label">完成率</div></div>
+    
+    <div class="bottom-nav">
+        <button class="nav-btn active" id="navTimer" onclick="switchTab('timer')">
+            <span class="nav-icon">⏱</span>
+            <span>计时</span>
+        </button>
+        <button class="nav-btn" id="navStats" onclick="switchTab('stats')">
+            <span class="nav-icon">📊</span>
+            <span>统计</span>
+        </button>
     </div>
-    <div class="add-box">
-        <input type="text" id="taskInput" placeholder="输入任务...">
-        <button onclick="addTask()">添加</button>
-    </div>
-    <div class="tasks" id="taskList"></div>
-    <div class="week">
-        <h3>本周</h3>
-        <div class="week-row" id="weekRow"></div>
+    
+    <div class="modal" id="modalAdd">
+        <div class="modal-box">
+            <div class="modal-title">添加自定义任务</div>
+            <input type="text" class="modal-input" id="inName" placeholder="任务名称">
+            <input type="text" class="modal-input" id="inIcon" placeholder="图标，如💻">
+            <div class="modal-btns">
+                <button class="modal-btn modal-cancel" onclick="hideAdd()">取消</button>
+                <button class="modal-btn modal-ok" onclick="addTask()">添加</button>
+            </div>
+        </div>
     </div>
 
 <script>
-var offset = 0;
-var storageKey = 'daka-v3';
+var K = 'zika-v5';
+var TK = 'zika-tasks-v4';
 
-function getData() {
-    var d = localStorage.getItem(storageKey);
-    return d ? JSON.parse(d) : {tasks: {}};
+var S = {
+    records: [],
+    totalMins: 0,
+    cur: '',
+    icon: '⏱',
+    anim: 'pulse',
+    elaps: 0,
+    running: false,
+    t: null,
+    selBtn: null,
+    mon: new Date(),
+    statView: 'day',
+    customs: []
+};
+
+var TD = {
+    '练车': {c:'#ff6b6b',i:'🚗',a:'car'},
+    '背单词': {c:'#4ecdc4',i:'📖',a:'book'},
+    '刷题': {c:'#45b7d1',i:'✏️',a:'pencil'},
+    '阅读': {c:'#96ceb4',i:'📚',a:'book'},
+    '运动': {c:'#ffeaa7',i:'🏃',a:'run'},
+    '工作': {c:'#a29bfe',i:'💼',a:'work'}
+};
+
+function save() { try { localStorage.setItem(K, JSON.stringify({r:S.records, t:S.totalMins})); } catch(e) {} }
+function saveT() { try { localStorage.setItem(TK, JSON.stringify(S.customs)); } catch(e) {} }
+function load() {
+    try { var d = localStorage.getItem(K); if(d){var p=JSON.parse(d);S.records=p.r||[];S.totalMins=p.t||0;} } catch(e) {}
+    try { var d = localStorage.getItem(TK); if(d) S.customs=JSON.parse(d); } catch(e) {}
+}
+function today() { var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function fmt(s) { var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return h>0?String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'):String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
+
+function switchTab(tab) {
+    document.getElementById('screenTimer').classList.toggle('active', tab==='timer');
+    document.getElementById('screenStats').classList.toggle('active', tab==='stats');
+    document.getElementById('navTimer').classList.toggle('active', tab==='timer');
+    document.getElementById('navStats').classList.toggle('active', tab==='stats');
+    if(tab==='stats') renderStats();
 }
 
-function save(d) {
-    localStorage.setItem(storageKey, JSON.stringify(d));
+function showStatView(v) {
+    S.statView = v;
+    document.getElementById('tabDay').classList.toggle('on', v==='day');
+    document.getElementById('tabMonth').classList.toggle('on', v==='month');
+    document.getElementById('viewDay').style.display = v==='day'?'block':'none';
+    document.getElementById('viewMonth').style.display = v==='month'?'block':'none';
+    renderStats();
 }
 
-function getDateStr(n) {
-    var d = new Date();
-    d.setDate(d.getDate() + n);
-    return d.toISOString().split('T')[0];
-}
-
-function fmtDate(s) {
-    var d = new Date(s);
-    var days = ['日','一','二','三','四','五','六'];
-    return (d.getMonth()+1) + '月' + d.getDate() + '日 周' + days[d.getDay()];
-}
-
-function changeDate(n) {
-    offset += n;
-    render();
-}
-
+function showAdd() { document.getElementById('modalAdd').classList.add('show'); document.getElementById('inName').value=''; document.getElementById('inIcon').value=''; }
+function hideAdd() { document.getElementById('modalAdd').classList.remove('show'); }
 function addTask() {
-    var el = document.getElementById('taskInput');
-    var name = el.value.trim();
-    if (!name) return;
-    var data = getData();
-    var ds = getDateStr(offset);
-    if (!data.tasks[ds]) data.tasks[ds] = [];
-    data.tasks[ds].push({
-        id: Date.now(),
-        name: name,
-        status: 'waiting',
-        subtasks: [],
-        target: 30
-    });
-    save(data);
-    el.value = '';
-    render();
+    var n = document.getElementById('inName').value.trim();
+    var ic = document.getElementById('inIcon').value.trim() || '📌';
+    if(!n){alert('请输入任务名称');return;}
+    S.customs.push({n:n,i:ic});
+    saveT();
+    var b = document.createElement('button');
+    b.className = 'task-btn';
+    b.innerHTML = ic+' '+n;
+    b.onclick = function(){selTask(n,b);};
+    document.getElementById('taskRow').insertBefore(b, document.getElementById('taskRow').lastChild);
+    hideAdd();
 }
 
-function setStatus(id, s) {
-    var data = getData();
-    var ts = data.tasks[getDateStr(offset)];
-    if (!ts) return;
-    for (var i = 0; i < ts.length; i++) {
-        if (ts[i].id === id) {
-            ts[i].status = s;
-            break;
-        }
+function selTask(n, btn) {
+    if(S.running) return;
+    S.cur = n;
+    var td = TD[n];
+    if(td) { S.icon = td.i; S.anim = td.a; }
+    else { var c=S.customs.find(function(x){return x.n===n;}); S.icon=c?c.i:'📌'; S.anim='pulse'; }
+    S.elaps = 0;
+    if(S.selBtn) S.selBtn.classList.remove('selected');
+    if(btn) btn.classList.add('selected');
+    S.selBtn = btn;
+    var ic = document.getElementById('timerIcon');
+    ic.textContent = S.icon;
+    ic.className = 'timer-icon';
+    ic.style.animation = 'none';
+    document.getElementById('timerTime').textContent = '00:00';
+    document.getElementById('timerLabel').textContent = n;
+    document.getElementById('timerStatus').textContent = '';
+    document.getElementById('btnStart').style.display = 'inline-block';
+    document.getElementById('btnEnd').classList.remove('show');
+}
+
+function startTimer() {
+    if(!S.cur){alert('请先选择任务');return;}
+    S.running = true;
+    document.getElementById('btnStart').style.display = 'none';
+    document.getElementById('btnEnd').classList.add('show');
+    var ic = document.getElementById('timerIcon');
+    ic.className = 'timer-icon anim';
+    ic.style.animation = S.anim+' 0.6s infinite';
+    document.getElementById('timerStatus').textContent = '专注中...';
+    S.t = setInterval(function(){ S.elaps++; document.getElementById('timerTime').textContent = fmt(S.elaps); }, 1000);
+}
+
+function endTimer() {
+    if(!S.cur) return;
+    clearInterval(S.t);
+    var m = Math.round(S.elaps/60);
+    if(m<1) m=1;
+    var t = today();
+    var tm = new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+    S.records.push({n:S.cur,m:m,d:t,t:tm});
+    S.totalMins += m;
+    save();
+    alert(S.cur+' 完成！'+fmt(S.elaps));
+    resetTimer();
+    updStats();
+    updList();
+}
+
+function resetTimer() {
+    clearInterval(S.t);
+    S.running = false;
+    S.cur = '';
+    S.icon = '⏱';
+    S.anim = 'pulse';
+    S.elaps = 0;
+    if(S.selBtn){S.selBtn.classList.remove('selected');S.selBtn=null;}
+    var ic = document.getElementById('timerIcon');
+    ic.textContent = '⏱';
+    ic.className = 'timer-icon';
+    ic.style.animation = 'none';
+    document.getElementById('timerTime').textContent = '00:00';
+    document.getElementById('timerLabel').textContent = '选择任务开始';
+    document.getElementById('timerStatus').textContent = '';
+    document.getElementById('btnStart').style.display = 'inline-block';
+    document.getElementById('btnEnd').classList.remove('show');
+}
+
+function updStats() {
+    var td = today();
+    var cnt = 0;
+    for(var i=0;i<S.records.length;i++) if(S.records[i].d===td) cnt++;
+    document.getElementById('valToday').textContent = cnt;
+    var h = Math.floor(S.totalMins/60);
+    var m = S.totalMins%60;
+    document.getElementById('valTotal').textContent = h>0?h+'h'+m+'m':m+'m';
+    var streak = 0;
+    var d = new Date();
+    for(var i=0;i<365;i++){
+        var ds = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+        var f = false;
+        for(var j=0;j<S.records.length;j++) if(S.records[j].d===ds){f=true;break;}
+        if(f) streak++; else if(i>0) break;
+        d.setDate(d.getDate()-1);
     }
-    save(data);
-    render();
+    document.getElementById('valStreak').textContent = streak;
 }
 
-function delTask(id) {
-    var data = getData();
-    var ts = data.tasks[getDateStr(offset)];
-    if (!ts) return;
-    for (var i = ts.length - 1; i >= 0; i--) {
-        if (ts[i].id === id) ts.splice(i, 1);
-    }
-    save(data);
-    render();
-}
-
-function addSub(taskId) {
-    var el = document.getElementById('sub-input-' + taskId);
-    if (!el) return;
-    var name = el.value.trim();
-    if (!name) return;
-    var data = getData();
-    var ts = data.tasks[getDateStr(offset)];
-    if (!ts) return;
-    for (var i = 0; i < ts.length; i++) {
-        if (ts[i].id === taskId) {
-            ts[i].subtasks.push({id: Date.now(), name: name, done: false});
-            break;
-        }
-    }
-    save(data);
-    el.value = '';
-    render();
-}
-
-function toggleSub(taskId, subId) {
-    var data = getData();
-    var ts = data.tasks[getDateStr(offset)];
-    if (!ts) return;
-    for (var i = 0; i < ts.length; i++) {
-        if (ts[i].id === taskId) {
-            var subs = ts[i].subtasks;
-            for (var j = 0; j < subs.length; j++) {
-                if (subs[j].id === subId) {
-                    subs[j].done = !subs[j].done;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    save(data);
-    render();
-}
-
-function toggleExpand(id) {
-    var el = document.getElementById('sub-' + id);
-    if (el) el.classList.toggle('hidden');
-}
-
-function render() {
-    var data = getData();
-    var ds = getDateStr(offset);
-    document.getElementById('curDate').textContent = fmtDate(ds);
-    
-    var ts = data.tasks[ds] || [];
+function updList() {
+    var td = today();
     var html = '';
-    for (var i = 0; i < ts.length; i++) {
-        var t = ts[i];
-        var btns = '';
-        if (t.status === 'waiting') {
-            btns = '<button class="btn-start" onclick="setStatus(' + t.id + ',\'running\')">开始</button>';
-        } else if (t.status === 'running') {
-            btns = '<button class="btn-pause" onclick="setStatus(' + t.id + ',\'paused\')">暂停</button>' +
-                   '<button class="btn-end" onclick="setStatus(' + t.id + ',\'done\')">完成</button>';
-        } else if (t.status === 'paused') {
-            btns = '<button class="btn-start" onclick="setStatus(' + t.id + ',\'running\')">继续</button>' +
-                   '<button class="btn-end" onclick="setStatus(' + t.id + ',\'done\')">完成</button>';
-        } else {
-            btns = '<span style="color:#667eea;font-size:12px;">已完成</span>';
+    for(var i=S.records.length-1;i>=0;i--){
+        if(S.records[i].d===td){
+            var r=S.records[i];
+            html += '<div class="record-item"><span class="record-name">'+r.n+'</span><span class="record-info">'+r.m+'分钟 '+r.t+'</span></div>';
         }
-        
-        var doneCnt = 0;
-        for (var j = 0; j < t.subtasks.length; j++) {
-            if (t.subtasks[j].done) doneCnt++;
-        }
-        
-        var subHtml = '';
-        for (var j = 0; j < t.subtasks.length; j++) {
-            var s = t.subtasks[j];
-            subHtml += '<div class="sub-item' + (s.done ? ' done' : '') + '">' +
-                '<input type="checkbox"' + (s.done ? ' checked' : '') + ' onclick="toggleSub(' + t.id + ',' + s.id + ')">' +
-                '<span>' + s.name + '</span></div>';
-        }
-        
-        html += '<div class="task">' +
-            '<div class="task-row" onclick="toggleExpand(' + t.id + ')">' +
-            '<div class="task-icon">📋</div>' +
-            '<div class="task-info">' +
-            '<div class="task-name">' + t.name + '</div>' +
-            '<div class="task-meta">' + doneCnt + '/' + t.subtasks.length + ' 子任务 | 目标' + t.target + '分钟</div>' +
-            '</div>' +
-            '<div class="task-btns" onclick="event.stopPropagation()">' + btns +
-            '<button class="btn-del" onclick="delTask(' + t.id + ')">x</button></div>' +
-            '</div>' +
-            '<div class="sub-list hidden" id="sub-' + t.id + '">' +
-            subHtml +
-            '<div class="sub-add">' +
-            '<input type="text" id="sub-input-' + t.id + '" placeholder="添加子任务...">' +
-            '<button onclick="addSub(' + t.id + ')">+</button>' +
-            '</div></div></div>';
     }
-    document.getElementById('taskList').innerHTML = html || '<div style="text-align:center;color:#999;padding:40px;">暂无任务，点击上方添加</div>';
-    
-    var running = 0, done = 0;
-    for (var i = 0; i < ts.length; i++) {
-        if (ts[i].status === 'running' || ts[i].status === 'paused') running++;
-        if (ts[i].status === 'done') done++;
-    }
-    document.getElementById('done').textContent = done;
-    document.getElementById('running').textContent = running;
-    document.getElementById('rate').textContent = ts.length ? Math.round(done / ts.length * 100) + '%' : '0%';
-    
-    var today = new Date();
-    var dow = today.getDay();
-    var weekHtml = '';
-    for (var i = 0; i < 7; i++) {
-        var d = new Date(today);
-        d.setDate(d.getDate() - dow + i);
-        var ds2 = d.toISOString().split('T')[0];
-        var dayTs = data.tasks[ds2] || [];
-        var dayDone = 0;
-        for (var j = 0; j < dayTs.length; j++) {
-            if (dayTs[j].status === 'done') dayDone++;
-        }
-        var isToday = ds2 === getDateStr(0);
-        var zeroCls = dayDone === 0 ? ' zero' : '';
-        weekHtml += '<div class="day' + (isToday ? ' today' : '') + '">' +
-            '<div class="d">' + ['日','一','二','三','四','五','六'][i] + '</div>' +
-            '<div class="n' + zeroCls + '">' + dayDone + '</div></div>';
-    }
-    document.getElementById('weekRow').innerHTML = weekHtml;
+    document.getElementById('todayRecords').innerHTML = html||'<div style="text-align:center;color:rgba(255,255,255,0.2);padding:20px;font-size:13px;">暂无记录，开始计时吧</div>';
 }
 
-function updateTimer() {
-    var now = new Date();
-    var end = new Date();
-    end.setHours(23, 59, 59, 999);
-    var diff = end - now;
-    if (diff > 0) {
-        var h = Math.floor(diff / 3600000);
-        var m = Math.floor((diff % 3600000) / 60000);
-        var s = Math.floor((diff % 60000) / 1000);
-        document.getElementById('timer').textContent = 
-            (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+function chgMon(d){S.mon.setMonth(S.mon.getMonth()+d);renderStats();}
+
+function renderStats() {
+    var y = S.mon.getFullYear();
+    var mo = S.mon.getMonth();
+    if(S.statView==='day'){
+        document.getElementById('txtMon').textContent = y+'年'+(mo+1)+'月';
+        var fd = new Date(y,mo,1).getDay();
+        var dim = new Date(y,mo+1,0).getDate();
+        var pdm = new Date(y,mo,0).getDate();
+        var dd = {};
+        for(var i=0;i<S.records.length;i++) dd[S.records[i].d]=true;
+        var t = today();
+        var html = '';
+        for(var i=fd-1;i>=0;i--) html += '<div class="day other">'+(pdm-i)+'</div>';
+        for(var d=1;d<=dim;d++){
+            var ds=y+'-'+(mo+1)+'-'+d;
+            var isT=ds===t;
+            var hasR=dd[ds];
+            html += '<div class="day'+(isT?' today':'')+'" onclick="showDay(\''+ds+'\')">'+d+(hasR?'<div class="day-dot"></div>':'')+'</div>';
+        }
+        var tot=fd+dim;
+        for(var i=1;i<=42-tot;i++) html += '<div class="day other">'+i+'</div>';
+        document.getElementById('daysGrid').innerHTML = html;
+        document.getElementById('dayDetail').style.display = 'none';
+    } else {
+        document.getElementById('txtMon2').textContent = y+'年'+(mo+1)+'月';
+        var mr = [];
+        for(var i=0;i<S.records.length;i++){
+            var r=S.records[i];
+            var dd=new Date(r.d);
+            if(dd.getFullYear()===y && dd.getMonth()===mo) mr.push(r);
+        }
+        var tm=0,ud={};
+        for(var i=0;i<mr.length;i++){tm+=mr[i].m;ud[mr[i].d]=true;}
+        document.getElementById('mCnt').textContent = mr.length;
+        document.getElementById('mMins').textContent = tm;
+        document.getElementById('mDays').textContent = Object.keys(ud).length;
+        var tm2={};
+        for(var i=0;i<mr.length;i++){
+            var r=mr[i];
+            if(!tm2[r.n]) tm2[r.n]=0;
+            tm2[r.n]+=r.m;
+        }
+        var names=Object.keys(tm2);
+        var h='';
+        for(var i=0;i<names.length;i++){
+            var n=names[i],mm=tm2[n],c=TD[n]?.c||'#a29bfe';
+            var pct=tm>0?Math.round((mm/tm)*100):0;
+            h += '<div class="task-bar"><div class="task-info"><span class="task-name">'+n+'</span><span class="task-mins">'+mm+'分钟</span></div><div class="task-bg"><div class="task-fill" style="width:'+pct+'%;background:'+c+'"></div></div></div>';
+        }
+        document.getElementById('monthBars').innerHTML = h||'<div style="color:rgba(255,255,255,0.2);text-align:center;padding:10px;">本月暂无数据</div>';
     }
 }
 
-setInterval(updateTimer, 1000);
-updateTimer();
-render();
-</script>
+function showDay(ds) {
+    var dr=[];
+    for(var i=0;i<S.records.length;i++) if(S.records[i].d===ds) dr.push(S.records[i]);
+    var dd=new Date(ds);
+    var wk=['日','一','二','三','四','五','六'];
+    document.getElementById('detailTitle').textContent = (dd.getMonth()+1)+'月'+dd.getDate()+'日 周'+wk[dd.getDay()];
+    var tm=0;
+    for(var i=0;i<dr.length;i++) tm+=dr[i].m;
+    document.getElementById('detailCnt').textContent = dr.length;
+    document.getElementById('detailMins').textContent = tm;
+    var m2={};
+    for(var i=0;i<dr.length;i++){
+        var r=dr[i];
+        if(!m2[r.n]) m2[r.n]=0;
+        m2[r.n]+=r.m;
+    }
+    var names=Object.keys(m2);
+    var h='';
+    for(var i=0;i<names.length;i++){
+        var n=names[i],mm=m2[n],c=TD[n]?.c||'#a29bfe';
+        var pct=tm>0?Math.round((mm/tm)*100):0;
+        h += '<div class="task-bar"><div class="task-info"><span class="task-name">'+n+'</span><span class="task-mins">'+mm+'分钟</span></div><div class="task-bg"><div class="task-fill" style="width:'+pct+'%;background:'+c+'"></div></div></div>';
+    }
+    document.getElementById('detailBars').innerHTML = h||'<div style="color:rgba(255,255,255,0.2);text-align:center;padding:8px;">当日无记录</div>';
+    document.getElementById('dayDetail').style.display = 'block';
+}
+
+load();
+updStats();
+updList();
+for(var i=0;i<S.customs.length;i++){
+    var t=S.customs[i];
+    var b=document.createElement('button');
+    b.className='task-btn';
+    b.innerHTML=t.i+' '+t.n;
+    b.onclick=(function(n){return function(){selTask(n,b);};})(t.n);
+    document.getElementById('taskRow').insertBefore(b,document.getElementById('taskRow').lastChild);
+}
+    </script>
 </body>
 </html>
