@@ -6,147 +6,297 @@
     <title>自律打卡</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        h1 { text-align: center; color: #00d4ff; margin-bottom: 10px; }
-        .date-nav { display: flex; justify-content: center; gap: 20px; align-items: center; margin-bottom: 20px; }
-        .date-nav button { background: #16213e; color: #fff; border: 1px solid #00d4ff; padding: 8px 16px; border-radius: 5px; cursor: pointer; }
-        .date-nav button:hover { background: #00d4ff; color: #1a1a2e; }
-        .date-nav span { font-size: 18px; color: #00d4ff; }
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: #16213e; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #0f3460; }
-        .stat-card .label { color: #888; font-size: 12px; }
-        .stat-card .value { font-size: 28px; color: #00d4ff; font-weight: bold; }
-        .add-task { display: flex; gap: 10px; margin-bottom: 20px; }
-        .add-task input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #0f3460; background: #16213e; color: #fff; font-size: 14px; }
-        .add-task button { padding: 12px 24px; background: #00d4ff; color: #1a1a2e; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .task-list { display: flex; flex-direction: column; gap: 10px; }
-        .task-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: #16213e; border-radius: 10px; border-left: 4px solid #0f3460; }
-        .task-item.completed { border-left-color: #00d4ff; opacity: 0.8; }
-        .task-item.completed .task-name { text-decoration: line-through; color: #888; }
-        .task-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #00d4ff; }
-        .task-item .task-name { flex: 1; font-size: 15px; }
-        .task-item .delete-btn { background: none; border: none; color: #ff4757; cursor: pointer; font-size: 18px; opacity: 0.5; }
-        .week-stats { margin-top: 30px; }
-        .week-stats h3 { color: #00d4ff; margin-bottom: 15px; }
-        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .day-stat { background: #16213e; padding: 12px 8px; border-radius: 8px; text-align: center; }
-        .day-stat .day-name { font-size: 11px; color: #888; }
-        .day-stat .day-count { font-size: 20px; color: #00d4ff; font-weight: bold; }
-        .day-stat .day-total { font-size: 11px; color: #666; }
-        .day-stat.today { border: 2px solid #00d4ff; }
-        .history { margin-top: 30px; }
-        .history h3 { color: #00d4ff; margin-bottom: 15px; }
-        .history-item { display: flex; justify-content: space-between; padding: 10px; background: #16213e; border-radius: 8px; margin-bottom: 8px; }
-        .history-item span { color: #888; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f7; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; text-align: center; color: white; font-size: 20px; font-weight: bold; }
+        .countdown { background: white; padding: 15px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        .countdown .time { font-size: 24px; font-weight: bold; color: #667eea; }
+        .nav { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 15px; background: white; }
+        .nav button { background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; }
+        .nav span { font-size: 16px; font-weight: 600; color: #333; }
+        .stats { display: flex; justify-content: center; gap: 30px; padding: 15px; background: white; margin: 15px; border-radius: 15px; }
+        .stat { text-align: center; }
+        .stat .num { font-size: 24px; font-weight: bold; color: #667eea; }
+        .stat .label { font-size: 11px; color: #999; }
+        .add-box { display: flex; gap: 10px; padding: 0 15px 15px; }
+        .add-box input { flex: 1; padding: 12px 15px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 15px; outline: none; }
+        .add-box input:focus { border-color: #667eea; }
+        .add-box button { background: #667eea; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .tasks { padding: 0 15px; }
+        .task { background: white; margin-bottom: 12px; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .task-row { display: flex; align-items: center; padding: 15px; gap: 12px; cursor: pointer; }
+        .task-row:hover { background: #fafafa; }
+        .task-icon { width: 40px; height: 40px; background: #f0f2f5; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .task-info { flex: 1; }
+        .task-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+        .task-meta { font-size: 12px; color: #999; }
+        .task-btns { display: flex; gap: 8px; }
+        .task-btns button { border: none; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-start { background: #34c759; color: white; }
+        .btn-pause { background: #ff9500; color: white; }
+        .btn-end { background: #667eea; color: white; }
+        .btn-del { background: #ff3b30; color: white; padding: 6px 10px; }
+        .sub-list { padding: 0 15px 15px; border-top: 1px solid #f5f5f5; }
+        .sub-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+        .sub-item input { width: 18px; height: 18px; }
+        .sub-item span { flex: 1; font-size: 14px; }
+        .sub-item.done span { text-decoration: line-through; color: #ccc; }
+        .sub-add { display: flex; gap: 8px; margin-top: 10px; }
+        .sub-add input { flex: 1; padding: 8px 10px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; }
+        .sub-add button { background: #f0f2f5; color: #667eea; border: none; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+        .week { padding: 20px 15px; }
+        .week h3 { font-size: 13px; color: #999; margin-bottom: 10px; }
+        .week-row { display: flex; gap: 8px; }
+        .day { flex: 1; text-align: center; padding: 12px; background: white; border-radius: 12px; }
+        .day.today { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .day .d { font-size: 11px; color: #999; }
+        .day.today .d { color: rgba(255,255,255,0.7); }
+        .day .n { font-size: 18px; font-weight: bold; margin-top: 4px; }
+        .day .n.zero { color: #ccc; }
+        .day.today .n { color: white; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>自律打卡</h1>
-        <div class="date-nav">
-            <button onclick="changeDate(-1)">前一天</button>
-            <span id="currentDate"></span>
-            <button onclick="changeDate(1)">后一天</button>
-        </div>
-        <div class="stats">
-            <div class="stat-card"><div class="label">今日完成</div><div class="value" id="todayDone">0</div></div>
-            <div class="stat-card"><div class="label">今日任务</div><div class="value" id="todayTotal">0</div></div>
-            <div class="stat-card"><div class="label">完成率</div><div class="value" id="todayRate">0%</div></div>
-            <div class="stat-card"><div class="label">连续天数</div><div class="value" id="streak">0</div></div>
-        </div>
-        <div class="add-task">
-            <input type="text" id="newTask" placeholder="添加新任务..." onkeypress="if(event.key==='Enter')addTask()">
-            <button onclick="addTask()">添加</button>
-        </div>
-        <div class="task-list" id="taskList"></div>
-        <div class="week-stats">
-            <h3>本周进度</h3>
-            <div class="week-grid" id="weekStats"></div>
-        </div>
-        <div class="history">
-            <h3>历史记录</h3>
-            <div id="historyList"></div>
-        </div>
+    <div class="header">自律打卡</div>
+    <div class="countdown"><div class="time" id="timer">--:--:--</div></div>
+    <div class="nav">
+        <button onclick="changeDate(-1)">前一天</button>
+        <span id="curDate"></span>
+        <button onclick="changeDate(1)">后一天</button>
     </div>
-    <script>
-        let currentOffset = 0;
-        const STORAGE_KEY = 'self-discipline-data';
-        function getData() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"tasks":{}}'); }
-        function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-        function getDateStr(offset) {
-            const d = new Date(); d.setDate(d.getDate() + offset);
-            return d.toISOString().split('T')[0];
+    <div class="stats">
+        <div class="stat"><div class="num" id="done">0</div><div class="label">已完成</div></div>
+        <div class="stat"><div class="num" id="running">0</div><div class="label">进行中</div></div>
+        <div class="stat"><div class="num" id="rate">0%</div><div class="label">完成率</div></div>
+    </div>
+    <div class="add-box">
+        <input type="text" id="taskInput" placeholder="输入任务...">
+        <button onclick="addTask()">添加</button>
+    </div>
+    <div class="tasks" id="taskList"></div>
+    <div class="week">
+        <h3>本周</h3>
+        <div class="week-row" id="weekRow"></div>
+    </div>
+
+<script>
+var offset = 0;
+var storageKey = 'daka-v3';
+
+function getData() {
+    var d = localStorage.getItem(storageKey);
+    return d ? JSON.parse(d) : {tasks: {}};
+}
+
+function save(d) {
+    localStorage.setItem(storageKey, JSON.stringify(d));
+}
+
+function getDateStr(n) {
+    var d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.toISOString().split('T')[0];
+}
+
+function fmtDate(s) {
+    var d = new Date(s);
+    var days = ['日','一','二','三','四','五','六'];
+    return (d.getMonth()+1) + '月' + d.getDate() + '日 周' + days[d.getDay()];
+}
+
+function changeDate(n) {
+    offset += n;
+    render();
+}
+
+function addTask() {
+    var el = document.getElementById('taskInput');
+    var name = el.value.trim();
+    if (!name) return;
+    var data = getData();
+    var ds = getDateStr(offset);
+    if (!data.tasks[ds]) data.tasks[ds] = [];
+    data.tasks[ds].push({
+        id: Date.now(),
+        name: name,
+        status: 'waiting',
+        subtasks: [],
+        target: 30
+    });
+    save(data);
+    el.value = '';
+    render();
+}
+
+function setStatus(id, s) {
+    var data = getData();
+    var ts = data.tasks[getDateStr(offset)];
+    if (!ts) return;
+    for (var i = 0; i < ts.length; i++) {
+        if (ts[i].id === id) {
+            ts[i].status = s;
+            break;
         }
-        function formatDate(dateStr) {
-            const d = new Date(dateStr);
-            const weekdays = ['日','一','二','三','四','五','六'];
-            return (d.getMonth()+1) + '月' + d.getDate() + '日 周' + weekdays[d.getDay()];
+    }
+    save(data);
+    render();
+}
+
+function delTask(id) {
+    var data = getData();
+    var ts = data.tasks[getDateStr(offset)];
+    if (!ts) return;
+    for (var i = ts.length - 1; i >= 0; i--) {
+        if (ts[i].id === id) ts.splice(i, 1);
+    }
+    save(data);
+    render();
+}
+
+function addSub(taskId) {
+    var el = document.getElementById('sub-input-' + taskId);
+    if (!el) return;
+    var name = el.value.trim();
+    if (!name) return;
+    var data = getData();
+    var ts = data.tasks[getDateStr(offset)];
+    if (!ts) return;
+    for (var i = 0; i < ts.length; i++) {
+        if (ts[i].id === taskId) {
+            ts[i].subtasks.push({id: Date.now(), name: name, done: false});
+            break;
         }
-        function changeDate(delta) { currentOffset += delta; render(); }
-        function addTask() {
-            const name = document.getElementById('newTask').value.trim();
-            if (!name) return;
-            const data = getData();
-            const dateStr = getDateStr(currentOffset);
-            if (!data.tasks[dateStr]) data.tasks[dateStr] = [];
-            data.tasks[dateStr].push({ id: Date.now(), name: name, done: false });
-            saveData(data);
-            document.getElementById('newTask').value = '';
-            render();
-        }
-        function toggleTask(id) {
-            const data = getData();
-            const task = data.tasks[getDateStr(currentOffset)]?.find(t => t.id === id);
-            if (task) { task.done = !task.done; saveData(data); render(); }
-        }
-        function deleteTask(id) {
-            const data = getData();
-            const tasks = data.tasks[getDateStr(currentOffset)];
-            if (tasks) { data.tasks[getDateStr(currentOffset)] = tasks.filter(t => t.id !== id); saveData(data); render(); }
-        }
-        function render() {
-            const data = getData();
-            const dateStr = getDateStr(currentOffset);
-            document.getElementById('currentDate').textContent = formatDate(dateStr);
-            const tasks = data.tasks[dateStr] || [];
-            document.getElementById('taskList').innerHTML = tasks.map(t => 
-                '<div class="task-item ' + (t.done?'completed':'') + '">' +
-                '<input type="checkbox" ' + (t.done?'checked':'') + ' onchange="toggleTask(' + t.id + ')">' +
-                '<span class="task-name">' + t.name + '</span>' +
-                '<button class="delete-btn" onclick="deleteTask(' + t.id + ')">x</button></div>'
-            ).join('');
-            const done = tasks.filter(t => t.done).length;
-            document.getElementById('todayDone').textContent = done;
-            document.getElementById('todayTotal').textContent = tasks.length;
-            document.getElementById('todayRate').textContent = tasks.length ? Math.round(done/tasks.length*100) + '%' : '0%';
-            let streak = 0;
-            for (let i = 0; i < 365; i++) {
-                const d = data.tasks[getDateStr(-i)];
-                if (d && d.length) { if (d.filter(t=>t.done).length/d.length >= 0.5) streak++; else break; }
-                else if (i > 0) break;
+    }
+    save(data);
+    el.value = '';
+    render();
+}
+
+function toggleSub(taskId, subId) {
+    var data = getData();
+    var ts = data.tasks[getDateStr(offset)];
+    if (!ts) return;
+    for (var i = 0; i < ts.length; i++) {
+        if (ts[i].id === taskId) {
+            var subs = ts[i].subtasks;
+            for (var j = 0; j < subs.length; j++) {
+                if (subs[j].id === subId) {
+                    subs[j].done = !subs[j].done;
+                    break;
+                }
             }
-            document.getElementById('streak').textContent = streak;
-            const today = new Date();
-            const dayOfWeek = today.getDay();
-            let weekHTML = '';
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(today); d.setDate(d.getDate() - dayOfWeek + i);
-                const dStr = d.toISOString().split('T')[0];
-                const dayTasks = data.tasks[dStr] || [];
-                const dayDone = dayTasks.filter(t => t.done).length;
-                weekHTML += '<div class="day-stat ' + (dStr === getDateStr(0) ? 'today' : '') + '">' +
-                    '<div class="day-name">' + ['日','一','二','三','四','五','六'][i] + '</div>' +
-                    '<div class="day-count">' + dayDone + '</div>' + '<div class="day-total">/' + dayTasks.length + '</div></div>';
-            }
-            document.getElementById('weekStats').innerHTML = weekHTML;
-            const dates = Object.keys(data.tasks).sort().reverse().slice(0, 10);
-            document.getElementById('historyList').innerHTML = dates.map(d => {
-                const dayTasks = data.tasks[d];
-                return '<div class="history-item"><span>' + formatDate(d) + '</span><span>' + dayTasks.filter(t=>t.done).length + '/' + dayTasks.length + '</span></div>';
-            }).join('');
+            break;
         }
-        render();
-    </script>
+    }
+    save(data);
+    render();
+}
+
+function toggleExpand(id) {
+    var el = document.getElementById('sub-' + id);
+    if (el) el.classList.toggle('hidden');
+}
+
+function render() {
+    var data = getData();
+    var ds = getDateStr(offset);
+    document.getElementById('curDate').textContent = fmtDate(ds);
+    
+    var ts = data.tasks[ds] || [];
+    var html = '';
+    for (var i = 0; i < ts.length; i++) {
+        var t = ts[i];
+        var btns = '';
+        if (t.status === 'waiting') {
+            btns = '<button class="btn-start" onclick="setStatus(' + t.id + ',\'running\')">开始</button>';
+        } else if (t.status === 'running') {
+            btns = '<button class="btn-pause" onclick="setStatus(' + t.id + ',\'paused\')">暂停</button>' +
+                   '<button class="btn-end" onclick="setStatus(' + t.id + ',\'done\')">完成</button>';
+        } else if (t.status === 'paused') {
+            btns = '<button class="btn-start" onclick="setStatus(' + t.id + ',\'running\')">继续</button>' +
+                   '<button class="btn-end" onclick="setStatus(' + t.id + ',\'done\')">完成</button>';
+        } else {
+            btns = '<span style="color:#667eea;font-size:12px;">已完成</span>';
+        }
+        
+        var doneCnt = 0;
+        for (var j = 0; j < t.subtasks.length; j++) {
+            if (t.subtasks[j].done) doneCnt++;
+        }
+        
+        var subHtml = '';
+        for (var j = 0; j < t.subtasks.length; j++) {
+            var s = t.subtasks[j];
+            subHtml += '<div class="sub-item' + (s.done ? ' done' : '') + '">' +
+                '<input type="checkbox"' + (s.done ? ' checked' : '') + ' onclick="toggleSub(' + t.id + ',' + s.id + ')">' +
+                '<span>' + s.name + '</span></div>';
+        }
+        
+        html += '<div class="task">' +
+            '<div class="task-row" onclick="toggleExpand(' + t.id + ')">' +
+            '<div class="task-icon">📋</div>' +
+            '<div class="task-info">' +
+            '<div class="task-name">' + t.name + '</div>' +
+            '<div class="task-meta">' + doneCnt + '/' + t.subtasks.length + ' 子任务 | 目标' + t.target + '分钟</div>' +
+            '</div>' +
+            '<div class="task-btns" onclick="event.stopPropagation()">' + btns +
+            '<button class="btn-del" onclick="delTask(' + t.id + ')">x</button></div>' +
+            '</div>' +
+            '<div class="sub-list hidden" id="sub-' + t.id + '">' +
+            subHtml +
+            '<div class="sub-add">' +
+            '<input type="text" id="sub-input-' + t.id + '" placeholder="添加子任务...">' +
+            '<button onclick="addSub(' + t.id + ')">+</button>' +
+            '</div></div></div>';
+    }
+    document.getElementById('taskList').innerHTML = html || '<div style="text-align:center;color:#999;padding:40px;">暂无任务，点击上方添加</div>';
+    
+    var running = 0, done = 0;
+    for (var i = 0; i < ts.length; i++) {
+        if (ts[i].status === 'running' || ts[i].status === 'paused') running++;
+        if (ts[i].status === 'done') done++;
+    }
+    document.getElementById('done').textContent = done;
+    document.getElementById('running').textContent = running;
+    document.getElementById('rate').textContent = ts.length ? Math.round(done / ts.length * 100) + '%' : '0%';
+    
+    var today = new Date();
+    var dow = today.getDay();
+    var weekHtml = '';
+    for (var i = 0; i < 7; i++) {
+        var d = new Date(today);
+        d.setDate(d.getDate() - dow + i);
+        var ds2 = d.toISOString().split('T')[0];
+        var dayTs = data.tasks[ds2] || [];
+        var dayDone = 0;
+        for (var j = 0; j < dayTs.length; j++) {
+            if (dayTs[j].status === 'done') dayDone++;
+        }
+        var isToday = ds2 === getDateStr(0);
+        var zeroCls = dayDone === 0 ? ' zero' : '';
+        weekHtml += '<div class="day' + (isToday ? ' today' : '') + '">' +
+            '<div class="d">' + ['日','一','二','三','四','五','六'][i] + '</div>' +
+            '<div class="n' + zeroCls + '">' + dayDone + '</div></div>';
+    }
+    document.getElementById('weekRow').innerHTML = weekHtml;
+}
+
+function updateTimer() {
+    var now = new Date();
+    var end = new Date();
+    end.setHours(23, 59, 59, 999);
+    var diff = end - now;
+    if (diff > 0) {
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('timer').textContent = 
+            (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+render();
+</script>
 </body>
 </html>
